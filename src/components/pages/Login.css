@@ -1,8 +1,10 @@
 .send-button{
-    width:100%;
+    width:40%;
     font-weight: 600;
-    color:#fff;
-    padding: 8px 25px;
+    color:rgb(246, 239, 239);
+    padding: 8px 25px ;
+    margin-right: 500px;
+    /* text-align: center; */
     }
     .g-button{
     color: #fff !important;
@@ -20,7 +22,7 @@
     transition: border .1s linear;
     }
     .header-title{
-    margin: 5rem 0;
+    margin: 5rem 0rem;
     }
     h1{
     font-size: 31px;

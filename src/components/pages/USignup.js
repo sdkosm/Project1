@@ -1,175 +1,132 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { signUp } from "../../services/user-service";
-import { Form, Input } from "reactstrap";
-import { myAxios } from "../../services/helper";
+import connection from "../../services/connection";
+import { useForm } from "react-hook-form";
+import "./USignup.css";
 
-const USignup = () => {
-  const [data, setData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState({
-    error: {},
-    isError: false,
-  });
-
-  //handle change
-  const handleChange = (event, property) => {
-    //dynamic setting the values
-    setData({ ...data, [property]: event.target.value });
-  };
-
-
-  //submit the form
-  const submitForm = (event) => {
-    event.preventDefault();
-
-    // if(error.isError){
-    //   toast.error("Form data is invalid , correct all details then submit. ");
-    //   setError({...error,isError:false})
-    //   return;
-    // }
-
+export default function Form() {
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
+  const onSubmit = (data) => {
+    // event.preventDefault();
     console.log(data);
-    //data validate
+
+    // Creating newUser Object...
+    const newUser = {
+      name: data.name,
+      email: data.email,
+      // mobileno: data.number,
+      password: data.password,
+      type: "patient",
+    };
 
     //call server api for sending data
-    signUp(data)
+    connection
+      .post("/api/v1/auth/register", newUser)
       .then((resp) => {
-        console.log(resp);
+        console.log(resp.data);
         console.log("success log");
-        toast.success("Registartion - Done!!");
-        setData({
-          name: "",
-          email: "",
-          password: "",
-        });
+        alert("User is registered successfully !!");
+        toast.success("User is registered successfully - id " + resp.data.id);
       })
       .catch((error) => {
-        console.log(error);
-        console.log("Error log");
-        //handle errors in proper way
-        setError({
-          errors: error,
-          isError: true,
-        });
+        toast.error(error.response.data.error);
+        alert(error.response.data.error);
       });
   };
-
   return (
-    <>
-      <div>
-        <section className="section">
-          <div className="container">
-            <div className="card shadow">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-md-6 ">
-                    <h4>Join Practo</h4>
-                    <label className="mb-1">Are you a Doctor? </label>
-                    <Link to="/register">Register Here</Link>
+    <section>
+      <div className="application">
+        <div className="container11">
+          <div className="card11">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div>
+                <h1>SignUp</h1>
 
-                    <div>
-                      <Link to="/login">Login</Link>
-                    </div>
-                    <hr />
-
-                    <div className="formmain">
-
-                    <Form onSubmit={submitForm}>
-
-                      <div className="form-group">
-                        <label className="mb-1">Name</label>
-                        <Input
-                          placeholder="Name"
-                          className="form-control"
-                          type="text"
-                          name="name"
-                          id="name"
-                          autoComplete="off"
-                          onChange={(e) => handleChange(e, "name")}
-                        value={data.name}
-                        invalid={
-                        error.errors?.response?.data?.name ? true : false
-                      }
-                      required
-                      />
-                      </div>
-
-                      <div className="form-group">
-                        <label className="mb-1">Email</label>
-                        <Input
-                          type="email"
-                          className="form-control"
-                          name="email"
-                          id="email"
-                          autoComplete="off"
-                          value={data.email}
-                          onChange={(e) => handleChange(e, "email")}
-                          placeholder="Your Email"
-                          invalid={
-                        error.errors?.response?.data?.name ? true : false
-                      }
-                      required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label className="mb-1">Password</label>
-                        <Input
-                          type="password"
-                          className="form-control"
-                          name="password"
-                          id="password"
-                          autoComplete="off"
-                          value={data.password}
-                          onChange={(e) => handleChange(e, "password")}
-                          placeholder="Your password "
-                          invalid={
-                        error.errors?.response?.data?.contact_detail
-                          ? true
-                          : false
-                      }
-                      required
-                        />
-                      </div>
-
-                      <div className="form-group py-3">
-                        <button type="button" className="btn btn-light w-50 ">
-                          SignUp
-                        </button>
-                      </div>
-                      </Form>
-                    </div>
-                  </div>
-
-                  <div className="col-md-6 border-start">
-                    <img
-                      src="https://img.freepik.com/free-vector/cartoon-character-filling-form-survey-checklist-man-writing-test-signing-business-medical-document-flat-illustration_74855-20483.jpg?w=740&t=st=1659980056~exp=1659980656~hmac=95288ee978ea14c3337ad522edc98dc1c7898e6e432fc6f9c9218a0d1a7729b2"
-                      width={500}
-                      height={350}
-                      alt=""
-                    />
-                  </div>
-
-                  <div>
-                    <p className="small mt-3">
-                      By signing up, you are indicating that you have read and
-                      agree to the Terms of Use and Privacy Policy.
-                    </p>
-                  </div>
-                </div>
+                <h4>Are you a doctor?</h4>
+                <Link to="/SignupDoctor">Register Here</Link>
+                <br></br>
+                <Link to="/login">Login</Link>
+                <hr />
               </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </>
-  );
-};
+              <div>
+                <label>Name</label>
+                <input
+                  placeholder="Enter your name"
+                  {...register("name", { required: true })}
+                />
+                <br></br>
+                <error>
+                  {errors.name?.type === "required" && "Name is required"}
+                </error>
+              </div>
+              <div>
+                <label>Email</label>
+                <input
+                  placeholder="Enter email"
+                  {...register("email", {
+                    required: true,
+                    pattern:
+                      /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/i,
+                  })}
+                />
+                <br></br>
+                <error>
+                  {errors.email?.type === "required" && "Email is required"}
+                  {errors.email?.type === "pattern" &&
+                    "Entered email is in wrong format"}
+                </error>
+              </div>
+              {/* <div>
+                <label>Phone Number</label>
+                <input
+                  placeholder="Enter Your Number"
+                  type="number"
+                  {...register("number", {
+                    minLength: 6,
+                    maxLength: 12,
+                  })}
+                />
+                <br></br>
+                <error>
+                  {errors.number?.type === "minLength" &&
+                    "Entered number is less than 6 digits"}
+                  {errors.number?.type === "maxLength" &&
+                    "Entered number is more than 12 digits"}
+                </error>
+              </div> */}
+              <div>
+                <label>Password</label>
+                <input
+                  placeholder="Enter password"
+                  {...register("password", {
+                    type: "password",
+                    required: true,
+                    minLength: 5,
+                    maxLength: 20,
+                  })}
+                />
 
-export default USignup;
- 
+                <br></br>
+                <error>
+                  {errors.password?.type === "minLength" &&
+                    "Entered password is less than 5 characters"}
+                  {errors.password?.type === "maxLength" &&
+                    "Entered password is more than 20 characters"}
+                </error>
+              </div>
+
+              <div>
+                <input className="button" type="submit" />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
